@@ -1,18 +1,162 @@
 "use client"
 
+import type React from "react"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle, Star, User, Building2, GraduationCap, Users, Rocket, PenTool } from "lucide-react"
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import Image from "next/image"
 
 export default function VibeMarketingLanding() {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [isDragging, setIsDragging] = useState(false)
+  const [startX, setStartX] = useState(0)
+  const [translateX, setTranslateX] = useState(0)
+  const [startTime, setStartTime] = useState(0)
+  const carouselRef = useRef<HTMLDivElement>(null)
+
+  const carouselItems = [
+    {
+      icon: "✍️",
+      title: "Assistente de Copy",
+      desc: "Cria textos persuasivos e vendedores automaticamente",
+      color: "from-blue-500 to-blue-600",
+    },
+    {
+      icon: "🎬",
+      title: "Vibe Reels",
+      desc: "Criar reels virais para suas redes sociais",
+      color: "from-purple-500 to-purple-600",
+    },
+    {
+      icon: "📱",
+      title: "Vibe Carrossel",
+      desc: "Crie carrosséis profissionais para Instagram",
+      color: "from-pink-500 to-pink-600",
+    },
+    {
+      icon: "💡",
+      title: "Vibe Ideia",
+      desc: "Criar big ideas que convertem e engajam",
+      color: "from-yellow-500 to-orange-500",
+    },
+    {
+      icon: "🔄",
+      title: "Vibe Funnel",
+      desc: "Crie funis de vendas completos e otimizados",
+      color: "from-green-500 to-green-600",
+    },
+    {
+      icon: "📧",
+      title: "Vibe Mail",
+      desc: "Crie emails persuasivos que vendem",
+      color: "from-red-500 to-red-600",
+    },
+    {
+      icon: "🌐",
+      title: "Vibe Pages",
+      desc: "Criar landing pages que convertem visitantes em clientes",
+      color: "from-cyan-500 to-blue-500",
+    },
+  ]
 
   const handleCTAClick = () => {
     window.open("https://pay.kiwify.com.br/7m14IRk?coupon=LANCAMENTO", "_blank")
+  }
+
+  // Enhanced touch handlers for ultra-smooth iPhone experience
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true)
+    setStartX(e.touches[0].clientX)
+    setStartTime(Date.now())
+    setTranslateX(0)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return
+
+    const currentX = e.touches[0].clientX
+    const diffX = currentX - startX
+
+    // Apply resistance at boundaries
+    let resistance = 1
+    if ((currentSlide === 0 && diffX > 0) || (currentSlide >= carouselItems.length - 1 && diffX < 0)) {
+      resistance = 0.3
+    }
+
+    setTranslateX(diffX * resistance)
+  }
+
+  const handleTouchEnd = () => {
+    if (!isDragging) return
+
+    setIsDragging(false)
+
+    const endTime = Date.now()
+    const timeDiff = endTime - startTime
+    const velocity = Math.abs(translateX) / timeDiff
+
+    // Determine if we should change slides based on distance and velocity
+    const threshold = 50
+    const velocityThreshold = 0.3
+
+    if (Math.abs(translateX) > threshold || velocity > velocityThreshold) {
+      if (translateX > 0 && currentSlide > 0) {
+        setCurrentSlide(currentSlide - 1)
+      } else if (translateX < 0 && currentSlide < carouselItems.length - 1) {
+        setCurrentSlide(currentSlide + 1)
+      }
+    }
+
+    setTranslateX(0)
+  }
+
+  // Mouse handlers for desktop
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true)
+    setStartX(e.clientX)
+    setStartTime(Date.now())
+    setTranslateX(0)
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return
+
+    const currentX = e.clientX
+    const diffX = currentX - startX
+
+    let resistance = 1
+    if ((currentSlide === 0 && diffX > 0) || (currentSlide >= carouselItems.length - 1 && diffX < 0)) {
+      resistance = 0.3
+    }
+
+    setTranslateX(diffX * resistance)
+  }
+
+  const handleMouseUp = () => {
+    if (!isDragging) return
+
+    setIsDragging(false)
+
+    const endTime = Date.now()
+    const timeDiff = endTime - startTime
+    const velocity = Math.abs(translateX) / timeDiff
+
+    const threshold = 50
+    const velocityThreshold = 0.3
+
+    if (Math.abs(translateX) > threshold || velocity > velocityThreshold) {
+      if (translateX > 0 && currentSlide > 0) {
+        setCurrentSlide(currentSlide - 1)
+      } else if (translateX < 0 && currentSlide < carouselItems.length - 1) {
+        setCurrentSlide(currentSlide + 1)
+      }
+    }
+
+    setTranslateX(0)
   }
 
   return (
@@ -25,6 +169,7 @@ export default function VibeMarketingLanding() {
           </p>
         </div>
       </div>
+
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-16 text-center">
         <Badge className="mb-6 bg-blue-100 text-blue-700 hover:bg-blue-100">🚀 Sistema Automatizado com IA</Badge>
@@ -58,113 +203,140 @@ export default function VibeMarketingLanding() {
       {/* AI Assistants Carousel */}
       <section className="container mx-auto px-4 py-16">
         <div className="relative max-w-6xl mx-auto">
-          <div className="overflow-hidden">
+          {/* Mobile Carousel */}
+          <div className="block md:hidden">
             <div
-              className="flex transition-transform duration-300 ease-out"
+              className="overflow-hidden cursor-grab active:cursor-grabbing select-none"
+              ref={carouselRef}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
               style={{
-                transform: `translateX(-${currentSlide * 320}px)`,
+                touchAction: "pan-x",
+                WebkitUserSelect: "none",
+                userSelect: "none",
               }}
             >
-              {[
-                {
-                  icon: "✍️",
-                  title: "Assistente de Copy",
-                  desc: "Cria textos persuasivos e vendedores automaticamente",
-                  color: "from-blue-500 to-blue-600",
-                },
-                {
-                  icon: "🎬",
-                  title: "Vibe Reels",
-                  desc: "Criar reels virais para suas redes sociais",
-                  color: "from-purple-500 to-purple-600",
-                },
-                {
-                  icon: "📱",
-                  title: "Vibe Carrossel",
-                  desc: "Crie carrosséis profissionais para Instagram",
-                  color: "from-pink-500 to-pink-600",
-                },
-                {
-                  icon: "💡",
-                  title: "Vibe Ideia",
-                  desc: "Criar big ideas que convertem e engajam",
-                  color: "from-yellow-500 to-orange-500",
-                },
-                {
-                  icon: "🔄",
-                  title: "Vibe Funnel",
-                  desc: "Crie funis de vendas completos e otimizados",
-                  color: "from-green-500 to-green-600",
-                },
-                {
-                  icon: "📧",
-                  title: "Vibe Mail",
-                  desc: "Crie emails persuasivos que vendem",
-                  color: "from-red-500 to-red-600",
-                },
-                {
-                  icon: "🌐",
-                  title: "Vibe Pages",
-                  desc: "Criar landing pages que convertem visitantes em clientes",
-                  color: "from-cyan-500 to-blue-500",
-                },
-              ].map((item, index) => (
-                <Card
-                  key={index}
-                  className="flex-shrink-0 w-80 mr-6 border-blue-100 hover:shadow-xl transition-all duration-300 bg-white/90 backdrop-blur hover:scale-105"
-                >
-                  <CardContent className="p-6 text-center">
-                    <div
-                      className={`w-16 h-16 rounded-full bg-gradient-to-r ${item.color} flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg`}
+              <div
+                className="flex transition-transform ease-out"
+                style={{
+                  transform: `translateX(calc(-${currentSlide * 100}% + ${translateX}px))`,
+                  transitionDuration: isDragging ? "0ms" : "400ms",
+                  transitionTimingFunction: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                }}
+              >
+                {carouselItems.map((item, index) => (
+                  <div key={index} className="w-full flex-shrink-0 px-3">
+                    <Card
+                      className="border-blue-100 hover:shadow-xl transition-all duration-300 bg-white/90 backdrop-blur"
+                      style={{
+                        transform: isDragging ? "scale(0.98)" : "scale(1)",
+                        transition: isDragging ? "none" : "transform 0.2s ease",
+                      }}
                     >
-                      {item.icon}
-                    </div>
-                    <h3 className="text-xl font-semibold text-slate-800 mb-3">{item.title}</h3>
-                    <p className="text-slate-600 leading-relaxed">{item.desc}</p>
-                  </CardContent>
-                </Card>
+                      <CardContent className="p-6 text-center">
+                        <div
+                          className={`w-16 h-16 rounded-full bg-gradient-to-r ${item.color} flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg`}
+                        >
+                          {item.icon}
+                        </div>
+                        <h3 className="text-xl font-semibold text-slate-800 mb-3">{item.title}</h3>
+                        <p className="text-slate-600 leading-relaxed">{item.desc}</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Mobile Dots Indicator */}
+            <div className="flex justify-center mt-6 gap-2">
+              {carouselItems.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentSlide(index)}
+                  className={`rounded-full transition-all duration-300 ${
+                    currentSlide === index ? "bg-blue-500 w-8 h-3 shadow-md" : "bg-slate-300 hover:bg-slate-400 w-3 h-3"
+                  }`}
+                />
               ))}
             </div>
+
+            {/* Mobile Instructions */}
+            <p className="text-center text-slate-500 text-sm mt-4">👆 Deslize para navegar pelos assistentes</p>
           </div>
 
-          {/* Navigation Arrows */}
-          <button
-            onClick={() => setCurrentSlide(Math.max(0, currentSlide - 1))}
-            disabled={currentSlide === 0}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ChevronLeft className="w-6 h-6 text-slate-600" />
-          </button>
+          {/* Desktop Carousel */}
+          <div className="hidden md:block">
+            <div className="overflow-hidden">
+              <div
+                className="flex transition-transform duration-400 ease-out"
+                style={{
+                  transform: `translateX(-${currentSlide * 320}px)`,
+                }}
+              >
+                {carouselItems.map((item, index) => (
+                  <Card
+                    key={index}
+                    className="flex-shrink-0 w-80 mr-6 border-blue-100 hover:shadow-xl transition-all duration-300 bg-white/90 backdrop-blur hover:scale-105"
+                  >
+                    <CardContent className="p-6 text-center">
+                      <div
+                        className={`w-16 h-16 rounded-full bg-gradient-to-r ${item.color} flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg`}
+                      >
+                        {item.icon}
+                      </div>
+                      <h3 className="text-xl font-semibold text-slate-800 mb-3">{item.title}</h3>
+                      <p className="text-slate-600 leading-relaxed">{item.desc}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
 
-          <button
-            onClick={() => setCurrentSlide(Math.min(4, currentSlide + 1))}
-            disabled={currentSlide >= 4}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ChevronRight className="w-6 h-6 text-slate-600" />
-          </button>
+            {/* Desktop Navigation Arrows */}
+            <button
+              onClick={() => setCurrentSlide(Math.max(0, currentSlide - 1))}
+              disabled={currentSlide === 0}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110"
+            >
+              <ChevronLeft className="w-6 h-6 text-slate-600" />
+            </button>
 
-          {/* Dots Indicator */}
-          <div className="flex justify-center mt-8 gap-2">
-            {[...Array(5)].map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentSlide(index)}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  currentSlide === index ? "bg-blue-500 scale-125" : "bg-slate-300 hover:bg-slate-400"
-                }`}
-              />
-            ))}
+            <button
+              onClick={() => setCurrentSlide(Math.min(4, currentSlide + 1))}
+              disabled={currentSlide >= 4}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110"
+            >
+              <ChevronRight className="w-6 h-6 text-slate-600" />
+            </button>
+
+            {/* Desktop Dots Indicator */}
+            <div className="flex justify-center mt-8 gap-2">
+              {[...Array(5)].map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentSlide(index)}
+                  className={`rounded-full transition-all duration-300 ${
+                    currentSlide === index ? "bg-blue-500 w-8 h-3 shadow-md" : "bg-slate-300 hover:bg-slate-400 w-3 h-3"
+                  }`}
+                />
+              ))}
+            </div>
+
+            {/* Desktop Instructions */}
+            <p className="text-center text-slate-500 text-sm mt-4">👆 Use as setas ou clique nos pontos para navegar</p>
           </div>
-
-          {/* Touch/Drag Instructions */}
-          <p className="text-center text-slate-500 text-sm mt-4">👆 Use as setas ou clique nos pontos para navegar</p>
 
           {/* CTA Button */}
           <div className="flex justify-center mt-8">
             <Button
               size="lg"
-              className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white px-8 py-4 text-lg"
+              className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white px-8 py-4 text-lg transform hover:scale-105 transition-all duration-200"
               onClick={handleCTAClick}
             >
               Quero Começar Agora
