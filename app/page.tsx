@@ -1,21 +1,30 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle, Star, Target, Bot, FileText, MessageSquare } from "lucide-react"
+import { CheckCircle, Star, User, Building2, GraduationCap, Users, Rocket, PenTool } from "lucide-react"
+import { useState } from "react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import Image from "next/image"
 
 export default function VibeMarketingLanding() {
+  const [currentSlide, setCurrentSlide] = useState(0)
+
+  const handleCTAClick = () => {
+    window.open("https://pay.kiwify.com.br/7m14IRk?coupon=LANCAMENTO", "_blank")
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Header */}
-      <header className="container mx-auto px-4 py-6">
-        <nav className="flex items-center justify-between">
-          <div className="text-2xl font-bold text-slate-800">Vibe Marketing</div>
-          <Button variant="outline" className="border-blue-200 text-blue-600 hover:bg-blue-50">
-            Login
-          </Button>
-        </nav>
-      </header>
-
+      {/* Red Banner */}
+      <div className="bg-red-500 text-white py-3 px-4">
+        <div className="container mx-auto text-center">
+          <p className="text-sm md:text-base font-medium">
+            Tenha um time de marketing completo mais barato que 1 freelancer (condição exclusiva de lançamento)
+          </p>
+        </div>
+      </div>
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-16 text-center">
         <Badge className="mb-6 bg-blue-100 text-blue-700 hover:bg-blue-100">🚀 Sistema Automatizado com IA</Badge>
@@ -33,19 +42,13 @@ export default function VibeMarketingLanding() {
           inteligentes e vendas diárias no piloto automático.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+        <div className="flex justify-center mb-12">
           <Button
             size="lg"
             className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white px-8 py-4 text-lg"
+            onClick={handleCTAClick}
           >
             Quero Começar Agora
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="border-blue-200 text-blue-600 hover:bg-blue-50 px-8 py-4 text-lg"
-          >
-            Ver Demonstração
           </Button>
         </div>
 
@@ -54,22 +57,119 @@ export default function VibeMarketingLanding() {
 
       {/* AI Assistants Carousel */}
       <section className="container mx-auto px-4 py-16">
-        <h2 className="text-3xl font-bold text-center text-slate-800 mb-12">📌 Carrossel das IAs e Assistentes</h2>
+        <div className="relative max-w-6xl mx-auto">
+          <div className="overflow-hidden">
+            <div
+              className="flex transition-transform duration-300 ease-out"
+              style={{
+                transform: `translateX(-${currentSlide * 320}px)`,
+              }}
+            >
+              {[
+                {
+                  icon: "✍️",
+                  title: "Assistente de Copy",
+                  desc: "Cria textos persuasivos e vendedores automaticamente",
+                  color: "from-blue-500 to-blue-600",
+                },
+                {
+                  icon: "🎬",
+                  title: "Vibe Reels",
+                  desc: "Criar reels virais para suas redes sociais",
+                  color: "from-purple-500 to-purple-600",
+                },
+                {
+                  icon: "📱",
+                  title: "Vibe Carrossel",
+                  desc: "Crie carrosséis profissionais para Instagram",
+                  color: "from-pink-500 to-pink-600",
+                },
+                {
+                  icon: "💡",
+                  title: "Vibe Ideia",
+                  desc: "Criar big ideas que convertem e engajam",
+                  color: "from-yellow-500 to-orange-500",
+                },
+                {
+                  icon: "🔄",
+                  title: "Vibe Funnel",
+                  desc: "Crie funis de vendas completos e otimizados",
+                  color: "from-green-500 to-green-600",
+                },
+                {
+                  icon: "📧",
+                  title: "Vibe Mail",
+                  desc: "Crie emails persuasivos que vendem",
+                  color: "from-red-500 to-red-600",
+                },
+                {
+                  icon: "🌐",
+                  title: "Vibe Pages",
+                  desc: "Criar landing pages que convertem visitantes em clientes",
+                  color: "from-cyan-500 to-blue-500",
+                },
+              ].map((item, index) => (
+                <Card
+                  key={index}
+                  className="flex-shrink-0 w-80 mr-6 border-blue-100 hover:shadow-xl transition-all duration-300 bg-white/90 backdrop-blur hover:scale-105"
+                >
+                  <CardContent className="p-6 text-center">
+                    <div
+                      className={`w-16 h-16 rounded-full bg-gradient-to-r ${item.color} flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg`}
+                    >
+                      {item.icon}
+                    </div>
+                    <h3 className="text-xl font-semibold text-slate-800 mb-3">{item.title}</h3>
+                    <p className="text-slate-600 leading-relaxed">{item.desc}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { icon: Bot, title: "IA de Copywriting", desc: "Cria textos persuasivos automaticamente" },
-            { icon: FileText, title: "IA de Conteúdo", desc: "Gera posts e carrosséis profissionais" },
-            { icon: MessageSquare, title: "IA de Funis", desc: "Constrói sequências de vendas completas" },
-          ].map((item, index) => (
-            <Card key={index} className="border-blue-100 hover:shadow-lg transition-shadow bg-white/80 backdrop-blur">
-              <CardContent className="p-6 text-center">
-                <item.icon className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-slate-800 mb-2">{item.title}</h3>
-                <p className="text-slate-600">{item.desc}</p>
-              </CardContent>
-            </Card>
-          ))}
+          {/* Navigation Arrows */}
+          <button
+            onClick={() => setCurrentSlide(Math.max(0, currentSlide - 1))}
+            disabled={currentSlide === 0}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <ChevronLeft className="w-6 h-6 text-slate-600" />
+          </button>
+
+          <button
+            onClick={() => setCurrentSlide(Math.min(4, currentSlide + 1))}
+            disabled={currentSlide >= 4}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <ChevronRight className="w-6 h-6 text-slate-600" />
+          </button>
+
+          {/* Dots Indicator */}
+          <div className="flex justify-center mt-8 gap-2">
+            {[...Array(5)].map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`w-3 h-3 rounded-full transition-all ${
+                  currentSlide === index ? "bg-blue-500 scale-125" : "bg-slate-300 hover:bg-slate-400"
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* Touch/Drag Instructions */}
+          <p className="text-center text-slate-500 text-sm mt-4">👆 Use as setas ou clique nos pontos para navegar</p>
+
+          {/* CTA Button */}
+          <div className="flex justify-center mt-8">
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white px-8 py-4 text-lg"
+              onClick={handleCTAClick}
+            >
+              Quero Começar Agora
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -119,6 +219,17 @@ export default function VibeMarketingLanding() {
             </div>
           </div>
         </div>
+
+        {/* CTA Button */}
+        <div className="flex justify-center mt-12">
+          <Button
+            size="lg"
+            className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white px-8 py-4 text-lg"
+            onClick={handleCTAClick}
+          >
+            Quero Começar Agora
+          </Button>
+        </div>
       </section>
 
       {/* What You'll Receive */}
@@ -145,47 +256,128 @@ export default function VibeMarketingLanding() {
             </Card>
           ))}
         </div>
+
+        {/* CTA Button */}
+        <div className="flex justify-center mt-12">
+          <Button
+            size="lg"
+            className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white px-8 py-4 text-lg"
+            onClick={handleCTAClick}
+          >
+            Quero Começar Agora
+          </Button>
+        </div>
       </section>
 
       {/* Target Audience */}
       <section className="bg-gradient-to-r from-blue-50 to-cyan-50 py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-slate-800 mb-12 text-center">Para Quem é Ideal?</h2>
+          <h2 className="text-4xl font-bold text-slate-800 mb-12 text-center">Para Quem é:</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              "Empresários e autônomos sem orçamento para equipe de marketing",
-              "PMEs que precisam gerar mais resultados com menos recursos",
-              "Infoprodutores que querem escalar e automatizar seu marketing",
-              "Agências digitais e locais buscando aumentar a eficiência",
-              "Estrategistas e lançadores que precisam de conteúdos e funis prontos",
-              "Copywriters e redatores que querem alavancar sua produtividade com IA",
+              {
+                icon: User,
+                text: "Empresários e autônomos sem orçamento para equipe de marketing",
+              },
+              {
+                icon: Building2,
+                text: "PMEs que precisam gerar mais resultados com menos recursos",
+              },
+              {
+                icon: GraduationCap,
+                text: "Infoprodutores que querem escalar e automatizar seu marketing",
+              },
+              {
+                icon: Users,
+                text: "Agências digitais e locais buscando aumentar a eficiência",
+              },
+              {
+                icon: Rocket,
+                text: "Estrategistas e lançadores que precisam de conteúdos e funis prontos",
+              },
+              {
+                icon: PenTool,
+                text: "Copywriters e redatores que querem alavancar sua produtividade com IA",
+              },
             ].map((item, index) => (
               <Card key={index} className="border-blue-100 bg-white/80 backdrop-blur">
                 <CardContent className="p-6">
-                  <Target className="w-8 h-8 text-blue-600 mb-4" />
-                  <p className="text-slate-700">{item}</p>
+                  <item.icon className="w-8 h-8 text-blue-600 mb-4" />
+                  <p className="text-slate-700">{item.text}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
         </div>
+
+        {/* CTA Button */}
+        <div className="flex justify-center mt-12">
+          <Button
+            size="lg"
+            className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white px-8 py-4 text-lg"
+            onClick={handleCTAClick}
+          >
+            Quero Começar Agora
+          </Button>
+        </div>
       </section>
 
       {/* Authority Section */}
       <section className="container mx-auto px-4 py-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-slate-800 mb-8">A Fórmula Que Já Gerou Mais de 50 Milhões de Reais</h2>
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-slate-800 mb-12 text-center">
+            A Fórmula Que Já Gerou Mais de 50 Milhões de Reais
+          </h2>
 
-          <div className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white p-8 rounded-2xl mb-8">
-            <p className="text-xl mb-4">
-              Eu sou <strong>Hugo Torres</strong>, estrategista de Marketing & Growth
-            </p>
-            <p className="text-lg opacity-90">
-              O Vibe Marketing é fruto de anos testando, validando e aplicando estratégias reais no mercado. Essas
-              técnicas e processos já geraram mais de 50 milhões de reais em faturamento.
-            </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Image Section */}
+            <div className="flex justify-center lg:justify-end">
+              <div className="relative">
+                <Image
+                  src="/images/hugo-torres-50m.png"
+                  alt="Hugo Paiva segurando prêmio de 50 milhões"
+                  width={400}
+                  height={500}
+                  className="rounded-2xl shadow-2xl"
+                />
+                <div className="absolute -bottom-4 -right-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-full font-bold text-lg shadow-lg">
+                  50M+ Gerados
+                </div>
+              </div>
+            </div>
+
+            {/* Content Section */}
+            <div className="space-y-6">
+              <div className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white p-8 rounded-2xl shadow-xl">
+                <p className="text-2xl font-bold mb-4">
+                  Eu sou <span className="text-yellow-300">Hugo Paiva</span>
+                </p>
+                <p className="text-lg mb-2 opacity-95">Estrategista de Marketing & Growth</p>
+                <p className="text-base opacity-90 leading-relaxed">
+                  O Vibe Marketing é fruto de anos testando, validando e aplicando estratégias reais no mercado. Essas
+                  técnicas e processos já geraram mais de 50 milhões de reais em faturamento, aplicadas em negócios
+                  reais e com resultados concretos.
+                </p>
+              </div>
+
+              <p className="text-slate-600 text-lg leading-relaxed">
+                Agora, com o Vibe Marketing, você terá acesso a esse mesmo método, que vai transformar a forma como você
+                cria e escala seu marketing, de forma simples, automatizada e com a força da inteligência artificial.
+              </p>
+            </div>
           </div>
+        </div>
+
+        {/* CTA Button */}
+        <div className="flex justify-center mt-12">
+          <Button
+            size="lg"
+            className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white px-8 py-4 text-lg"
+            onClick={handleCTAClick}
+          >
+            Quero Começar Agora
+          </Button>
         </div>
       </section>
 
@@ -198,10 +390,22 @@ export default function VibeMarketingLanding() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              "Eu perdia muito tempo tentando criar posts, e nada dava resultado. O Vibe mudou tudo, agora tenho um fluxo pronto e leads diários.",
-              "Antes, eu achava que era impossível vender no Instagram sem gastar muito. O Vibe Marketing me provou o contrário.",
-              "Já gastei muito com agências que prometiam mundos. O Vibe me mostrou como fazer do jeito certo e barato.",
-            ].map((testimonial, index) => (
+              {
+                testimonial:
+                  "Eu perdia muito tempo tentando criar posts, e nada dava resultado. O Vibe mudou tudo, agora tenho um fluxo pronto e leads diários.",
+                name: "Julio Souza",
+              },
+              {
+                testimonial:
+                  "Antes, eu achava que era impossível vender no Instagram sem gastar muito. O Vibe Marketing me provou o contrário.",
+                name: "Carolina Reis",
+              },
+              {
+                testimonial:
+                  "Já gastei muito com agências que prometiam mundos. O Vibe me mostrou como fazer do jeito certo e barato.",
+                name: "Carlos Vieira",
+              },
+            ].map((item, index) => (
               <Card key={index} className="border-blue-100">
                 <CardContent className="p-6">
                   <div className="flex mb-4">
@@ -209,11 +413,23 @@ export default function VibeMarketingLanding() {
                       <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
                     ))}
                   </div>
-                  <p className="text-slate-700 italic">"{testimonial}"</p>
+                  <p className="text-slate-700 italic mb-4">"{item.testimonial}"</p>
+                  <p className="text-slate-600 font-semibold text-sm">— {item.name}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
+        </div>
+
+        {/* CTA Button */}
+        <div className="flex justify-center mt-12">
+          <Button
+            size="lg"
+            className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white px-8 py-4 text-lg"
+            onClick={handleCTAClick}
+          >
+            Quero Começar Agora
+          </Button>
         </div>
       </section>
 
@@ -225,17 +441,25 @@ export default function VibeMarketingLanding() {
           <Card className="border-2 border-blue-200 shadow-2xl">
             <CardContent className="p-8 text-center">
               <div className="mb-6">
-                <div className="text-sm text-slate-500 line-through mb-2">De R$ 997</div>
-                <div className="text-5xl font-bold text-slate-800 mb-2">R$ 197</div>
+                {/* New pricing format with brand colors */}
+                <div className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white p-6 rounded-xl mb-4">
+                  <div className="text-center">
+                    <div className="text-sm mb-2">
+                      DE <span className="line-through">R$1.971</span> POR APENAS 12X DE
+                    </div>
+                    <div className="text-5xl md:text-6xl font-bold mb-2">R$20,38</div>
+                    <div className="text-lg">OU R$197,00 À VISTA</div>
+                  </div>
+                </div>
+
                 <div className="text-blue-600 font-semibold">Acesso Anual Completo</div>
               </div>
 
               <ul className="text-left space-y-3 mb-8">
                 {[
-                  "Acesso a todos os treinamentos mensais",
-                  "Acesso a todos os templates",
-                  "Acesso aos agentes de IA",
-                  "Swipe file de copy",
+                  "Acesso a todos os treinamentos mensais (R$ 997)",
+                  "Acesso a todos os templates (R$ 297)",
+                  "Acesso aos agentes de IA (R$ 497)",
                 ].map((item, index) => (
                   <li key={index} className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-500" />
@@ -247,6 +471,7 @@ export default function VibeMarketingLanding() {
               <Button
                 size="lg"
                 className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white py-4 text-lg"
+                onClick={handleCTAClick}
               >
                 Garantir Meu Acesso Agora
               </Button>
@@ -256,25 +481,6 @@ export default function VibeMarketingLanding() {
           </Card>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-slate-800 text-white py-12">
-        <div className="container mx-auto px-4 text-center">
-          <div className="text-2xl font-bold mb-4">Vibe Marketing</div>
-          <p className="text-slate-400 mb-6">Transformando empresários em mestres do marketing digital</p>
-          <div className="flex justify-center space-x-6 text-sm text-slate-400">
-            <a href="#" className="hover:text-white">
-              Termos de Uso
-            </a>
-            <a href="#" className="hover:text-white">
-              Política de Privacidade
-            </a>
-            <a href="#" className="hover:text-white">
-              Contato
-            </a>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }
