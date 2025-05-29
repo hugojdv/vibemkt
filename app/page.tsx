@@ -1,22 +1,201 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 
+import type { ReactElement } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle, Star, User, Building2, GraduationCap, Users, Rocket, PenTool } from "lucide-react"
-import { useState, useRef } from "react"
+import { CheckCircle, Star, User, Building2, GraduationCap, Users, Rocket, PenTool, X } from "lucide-react"
+import { useState, useRef, useCallback } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import Image from "next/image"
 
-export default function VibeMarketingLanding() {
+// Funções de validação
+const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+  return emailRegex.test(email)
+}
+
+const validatePhone = (phone: string): boolean => {
+  // Remove todos os caracteres não numéricos
+  const cleanPhone = phone.replace(/\D/g, "")
+  // Verifica se tem 10 ou 11 dígitos (com DDD)
+  return cleanPhone.length === 10 || cleanPhone.length === 11
+}
+
+const formatPhone = (value: string): string => {
+  // Remove tudo que não é número
+  const numbers = value.replace(/\D/g, "")
+
+  // Aplica a máscara
+  if (numbers.length <= 2) {
+    return numbers
+  } else if (numbers.length <= 7) {
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`
+  } else if (numbers.length <= 10) {
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 6)}-${numbers.slice(6)}`
+  } else {
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7, 11)}`
+  }
+}
+
+// Modal separado para evitar re-renders
+const LeadModal = React.memo(
+  ({
+    showLeadModal,
+    setShowLeadModal,
+    leadForm,
+    handleInputChange,
+    handleLeadSubmit,
+    isSubmitting,
+    errors,
+  }: {
+    showLeadModal: boolean
+    setShowLeadModal: (show: boolean) => void
+    leadForm: { name: string; email: string; phone: string }
+    handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+    handleLeadSubmit: (e: React.FormEvent) => void
+    isSubmitting: boolean
+    errors: { name: string; email: string; phone: string }
+  }) => {
+    if (!showLeadModal) return null
+
+    return (
+      <div
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+        onClick={() => setShowLeadModal(false)}
+      >
+        <div
+          className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto relative z-[10000]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="p-6 sm:p-8">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-slate-800">🚀 Quase lá!</h3>
+              <button
+                onClick={() => setShowLeadModal(false)}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="mb-6">
+              <p className="text-slate-600 mb-4">
+                Preencha seus dados para garantir seu acesso ao <strong>Vibe Marketing</strong> com desconto exclusivo!
+              </p>
+              <div className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white p-4 rounded-xl text-center">
+                <p className="text-sm mb-1">🎯 OFERTA ESPECIAL</p>
+                <p className="text-2xl font-bold">R$ 197,00</p>
+                <p className="text-sm opacity-90">ou 12x de R$ 20,38</p>
+              </div>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleLeadSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="modal-name" className="block text-sm font-medium text-slate-700 mb-2">
+                  Nome completo *
+                </label>
+                <input
+                  type="text"
+                  id="modal-name"
+                  name="name"
+                  value={leadForm.name}
+                  onChange={handleInputChange}
+                  required
+                  autoComplete="name"
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors bg-white ${
+                    errors.name ? "border-red-500 focus:border-red-500" : "border-slate-300 focus:border-blue-500"
+                  }`}
+                  placeholder="Seu nome completo"
+                />
+                {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+              </div>
+
+              <div>
+                <label htmlFor="modal-email" className="block text-sm font-medium text-slate-700 mb-2">
+                  E-mail *
+                </label>
+                <input
+                  type="email"
+                  id="modal-email"
+                  name="email"
+                  value={leadForm.email}
+                  onChange={handleInputChange}
+                  required
+                  autoComplete="email"
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors bg-white ${
+                    errors.email ? "border-red-500 focus:border-red-500" : "border-slate-300 focus:border-blue-500"
+                  }`}
+                  placeholder="seu@email.com"
+                />
+                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+              </div>
+
+              <div>
+                <label htmlFor="modal-phone" className="block text-sm font-medium text-slate-700 mb-2">
+                  WhatsApp *
+                </label>
+                <input
+                  type="tel"
+                  id="modal-phone"
+                  name="phone"
+                  value={leadForm.phone}
+                  onChange={handleInputChange}
+                  required
+                  autoComplete="tel"
+                  maxLength={15}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors bg-white ${
+                    errors.phone ? "border-red-500 focus:border-red-500" : "border-slate-300 focus:border-blue-500"
+                  }`}
+                  placeholder="(11) 99999-9999"
+                />
+                {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white py-4 text-lg font-semibold disabled:opacity-50"
+              >
+                {isSubmitting ? "Processando..." : "🎯 Garantir Meu Acesso Agora"}
+              </Button>
+            </form>
+
+            <p className="text-xs text-slate-500 text-center mt-4">✅ Seus dados estão seguros conosco</p>
+          </div>
+        </div>
+      </div>
+    )
+  },
+)
+
+LeadModal.displayName = "LeadModal"
+
+export default function VibeMarketingLanding(): ReactElement {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [translateX, setTranslateX] = useState(0)
   const [startTime, setStartTime] = useState(0)
   const carouselRef = useRef<HTMLDivElement>(null)
+
+  const [showLeadModal, setShowLeadModal] = useState(false)
+  const [leadForm, setLeadForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  })
 
   const carouselItems = [
     {
@@ -64,98 +243,156 @@ export default function VibeMarketingLanding() {
   ]
 
   const handleCTAClick = () => {
-    window.open("https://pay.kiwify.com.br/7m14IRk?coupon=LANCAMENTO", "_blank")
+    setShowLeadModal(true)
   }
 
-  // Enhanced touch handlers for ultra-smooth iPhone experience
-  const handleTouchStart = (e: React.TouchEvent) => {
+  const handleLeadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    // Validações
+    const newErrors = {
+      name: "",
+      email: "",
+      phone: "",
+    }
+
+    // Validar nome (mínimo 2 palavras)
+    if (!leadForm.name.trim() || leadForm.name.trim().split(" ").length < 2) {
+      newErrors.name = "Digite seu nome completo"
+    }
+
+    // Validar email
+    if (!leadForm.email.trim()) {
+      newErrors.email = "Digite seu email"
+    } else if (!validateEmail(leadForm.email)) {
+      newErrors.email = "Digite um email válido"
+    }
+
+    // Validar telefone
+    if (!leadForm.phone.trim()) {
+      newErrors.phone = "Digite seu WhatsApp"
+    } else if (!validatePhone(leadForm.phone)) {
+      newErrors.phone = "Digite um número válido com DDD"
+    }
+
+    // Se houver erros, mostrar e não enviar
+    if (newErrors.name || newErrors.email || newErrors.phone) {
+      setErrors(newErrors)
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      // Enviar dados para Google Sheets
+      const response = await fetch("/api/submit-lead", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: leadForm.name,
+          email: leadForm.email,
+          phone: leadForm.phone,
+          timestamp: new Date().toISOString(),
+          source: "Vibe Marketing Landing Page",
+        }),
+      })
+
+      if (response.ok) {
+        // Sucesso - redirecionar para checkout
+        window.open("https://pay.kiwify.com.br/7m14IRk?coupon=LANCAMENTO", "_blank")
+
+        setShowLeadModal(false)
+        setLeadForm({ name: "", email: "", phone: "" })
+      } else {
+        // Erro - mas ainda redireciona (não perde a venda)
+        console.error("Erro ao salvar lead, mas prosseguindo...")
+        window.open("https://pay.kiwify.com.br/7m14IRk?coupon=LANCAMENTO", "_blank")
+        setShowLeadModal(false)
+        setLeadForm({ name: "", email: "", phone: "" })
+      }
+    } catch (error) {
+      console.error("Erro:", error)
+      // Mesmo com erro, não bloqueia a venda
+      window.open("https://pay.kiwify.com.br/7m14IRk?coupon=LANCAMENTO", "_blank")
+      setShowLeadModal(false)
+      setLeadForm({ name: "", email: "", phone: "" })
+    }
+
+    setIsSubmitting(false)
+  }
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target
+
+      let formattedValue = value
+
+      // Aplicar máscara no telefone
+      if (name === "phone") {
+        formattedValue = formatPhone(value)
+      }
+
+      setLeadForm((prev) => ({
+        ...prev,
+        [name]: formattedValue,
+      }))
+
+      // Limpar erro quando usuário começar a digitar
+      if (errors[name as keyof typeof errors]) {
+        setErrors((prev) => ({
+          ...prev,
+          [name]: "",
+        }))
+      }
+    },
+    [errors],
+  )
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     setIsDragging(true)
     setStartX(e.touches[0].clientX)
     setStartTime(Date.now())
-    setTranslateX(0)
   }
 
-  const handleTouchMove = (e: React.TouchEvent) => {
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
     if (!isDragging) return
-
-    const currentX = e.touches[0].clientX
-    const diffX = currentX - startX
-
-    // Apply resistance at boundaries
-    let resistance = 1
-    if ((currentSlide === 0 && diffX > 0) || (currentSlide >= carouselItems.length - 1 && diffX < 0)) {
-      resistance = 0.3
-    }
-
-    setTranslateX(diffX * resistance)
+    const deltaX = e.touches[0].clientX - startX
+    setTranslateX(deltaX)
   }
 
   const handleTouchEnd = () => {
     if (!isDragging) return
-
     setIsDragging(false)
-
-    const endTime = Date.now()
-    const timeDiff = endTime - startTime
-    const velocity = Math.abs(translateX) / timeDiff
-
-    // Determine if we should change slides based on distance and velocity
-    const threshold = 50
-    const velocityThreshold = 0.3
-
-    if (Math.abs(translateX) > threshold || velocity > velocityThreshold) {
-      if (translateX > 0 && currentSlide > 0) {
-        setCurrentSlide(currentSlide - 1)
-      } else if (translateX < 0 && currentSlide < carouselItems.length - 1) {
-        setCurrentSlide(currentSlide + 1)
-      }
+    const duration = Date.now() - startTime
+    const distance = translateX
+    if (duration < 300 && Math.abs(distance) > 50) {
+      setCurrentSlide((prev) => (distance > 0 ? Math.max(0, prev - 1) : Math.min(4, prev + 1)))
     }
-
     setTranslateX(0)
   }
 
-  // Mouse handlers for desktop
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     setIsDragging(true)
     setStartX(e.clientX)
     setStartTime(Date.now())
-    setTranslateX(0)
   }
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isDragging) return
-
-    const currentX = e.clientX
-    const diffX = currentX - startX
-
-    let resistance = 1
-    if ((currentSlide === 0 && diffX > 0) || (currentSlide >= carouselItems.length - 1 && diffX < 0)) {
-      resistance = 0.3
-    }
-
-    setTranslateX(diffX * resistance)
+    const deltaX = e.clientX - startX
+    setTranslateX(deltaX)
   }
 
   const handleMouseUp = () => {
     if (!isDragging) return
-
     setIsDragging(false)
-
-    const endTime = Date.now()
-    const timeDiff = endTime - startTime
-    const velocity = Math.abs(translateX) / timeDiff
-
-    const threshold = 50
-    const velocityThreshold = 0.3
-
-    if (Math.abs(translateX) > threshold || velocity > velocityThreshold) {
-      if (translateX > 0 && currentSlide > 0) {
-        setCurrentSlide(currentSlide - 1)
-      } else if (translateX < 0 && currentSlide < carouselItems.length - 1) {
-        setCurrentSlide(currentSlide + 1)
-      }
+    const duration = Date.now() - startTime
+    const distance = translateX
+    if (duration < 300 && Math.abs(distance) > 50) {
+      setCurrentSlide((prev) => (distance > 0 ? Math.max(0, prev - 1) : Math.min(4, prev + 1)))
     }
-
     setTranslateX(0)
   }
 
@@ -393,7 +630,7 @@ export default function VibeMarketingLanding() {
                     "Economiza horas de trabalho por semana",
                     "Se concentra no que realmente importa: fazer seu negócio crescer",
                   ].map((item, index) => (
-                    <li key={index} className="flex items-start gap-3">
+                    <li key={index} className="flex items-start gap-2 sm:gap-3">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
                       <span className="text-slate-700 text-sm sm:text-base">{item}</span>
                     </li>
@@ -588,7 +825,7 @@ export default function VibeMarketingLanding() {
               },
               {
                 testimonial:
-                  "Já gastei muito com agências que prometiam mundos. O Vibe me mostrou como fazer do jeito certo e barato.",
+                  "Já gastei muito com agências que prometiam mundos. O Vibe Marketing me mostrou como fazer do jeito certo e barato.",
                 name: "Carlos Vieira",
               },
             ].map((item, index) => (
@@ -673,6 +910,16 @@ export default function VibeMarketingLanding() {
           </Card>
         </div>
       </section>
+      {/* Lead Modal */}
+      <LeadModal
+        showLeadModal={showLeadModal}
+        setShowLeadModal={setShowLeadModal}
+        leadForm={leadForm}
+        handleInputChange={handleInputChange}
+        handleLeadSubmit={handleLeadSubmit}
+        isSubmitting={isSubmitting}
+        errors={errors}
+      />
     </div>
   )
 }
